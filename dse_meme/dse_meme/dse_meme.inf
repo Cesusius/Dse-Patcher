@@ -1,0 +1,77 @@
+;
+; dse_meme.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: specify appropriate Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=dse_meme.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+dse_meme_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+dse_meme.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%dse_meme.DeviceDesc%=dse_meme_Device, Root\dse_meme ; TODO: edit hw-id
+
+[dse_meme_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+dse_meme.sys
+
+;-------------- Service installation
+[dse_meme_Device.NT.Services]
+AddService = dse_meme,%SPSVCINST_ASSOCSERVICE%, dse_meme_Service_Inst
+
+; -------------- dse_meme driver install sections
+[dse_meme_Service_Inst]
+DisplayName    = %dse_meme.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\dse_meme.sys
+
+;
+;--- dse_meme_Device Coinstaller installation ------
+;
+
+[dse_meme_Device.NT.CoInstallers]
+AddReg=dse_meme_Device_CoInstaller_AddReg
+CopyFiles=dse_meme_Device_CoInstaller_CopyFiles
+
+[dse_meme_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[dse_meme_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[dse_meme_Device.NT.Wdf]
+KmdfService =  dse_meme, dse_meme_wdfsect
+[dse_meme_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "dse_meme Installation Disk"
+dse_meme.DeviceDesc = "dse_meme Device"
+dse_meme.SVCDESC = "dse_meme Service"
